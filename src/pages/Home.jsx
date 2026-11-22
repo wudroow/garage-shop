@@ -1,180 +1,55 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import products from '../data/products';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { products } from '../data/products';
 
-const testVins = [
-  { vin: "XW7BF4FKX0S123456", car: "Toyota Camry" },
-  { vin: "JTDBR32E720123456", car: "Kia Rio" },
-  { vin: "XTA210990Y1234567", car: "Lada Vesta" }
-];
+function Home() {
+  const [vin, setVin] = useState('');
+  const navigate = useNavigate();
 
-const Home = () => {
-  const [vin, setVin] = useState(() => localStorage.getItem('lastVin') || '');
-  const [results, setResults] = useState(null);
-  const [searchFilter, setSearchFilter] = useState('');
-
-  useEffect(() => {
+  const handleSearch = () => {
     if (vin.length === 17) {
-      setResults(products.filter(p => p.vin.includes(vin)));
-    }
-  }, []);
-
-  const featured = useMemo(() => {
-    const shuffled = [...products].sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, 8);
-  }, []);
-
-  const search = () => {
-    const clean = vin.trim().toUpperCase().replace(/\s/g, '');
-    if (clean.length !== 17) {
+      localStorage.setItem('searchVin', vin);
+      navigate('/catalog');
+    } else {
       alert('VIN-код должен содержать ровно 17 символов!');
-      return;
     }
-    localStorage.setItem('lastVin', clean);
-    setResults(products.filter(p => p.vin.includes(clean)));
-    setSearchFilter('');
   };
-
-  const fillVin = (code) => {
-    setVin(code);
-    localStorage.setItem('lastVin', code);
-    setResults(products.filter(p => p.vin.includes(code)));
-    setSearchFilter('');
-  };
-
-  const clearVin = () => {
-    setVin('');
-    setResults(null);
-    setSearchFilter('');
-    localStorage.removeItem('lastVin');
-  };
-
-  // Фильтрация результатов поиска
-  const filteredResults = useMemo(() => {
-    if (!results) return [];
-    if (!searchFilter.trim()) return results;
-    const q = searchFilter.toLowerCase();
-    return results.filter(p => 
-      p.name.toLowerCase().includes(q) || 
-      p.brand.toLowerCase().includes(q) ||
-      p.category.toLowerCase().includes(q)
-    );
-  }, [results, searchFilter]);
 
   return (
     <div>
-      <section className="hero">
-        <h1>ГАРАЖ</h1>
-        <p>Профессиональный подбор автозапчастей по VIN-коду</p>
-        <div className="search-box">
-          <input
-            className="search-input"
-            placeholder="Введите VIN (17 символов)"
-            value={vin}
-            maxLength={17}
+      <div className="card text-center" style={{ background: 'linear-gradient(135deg, #1a1a1a 0%, #333 100%)', color: 'white', padding: '60px 20px', marginBottom: '40px' }}>
+        <h2 style={{ fontSize: '36px', marginBottom: '15px', color: 'white' }}>Подбор запчастей по VIN-коду</h2>
+        <p style={{ marginBottom: '30px', color: '#ccc' }}>Введите 17-значный код автомобиля, чтобы найти совместимые детали</p>
+        
+        <div style={{ display: 'flex', gap: '10px', maxWidth: '600px', margin: '0 auto' }}>
+          <input 
+            type="text" 
+            placeholder="Например: XW7BF4FKX0S123456" 
+            value={vin} 
             onChange={(e) => setVin(e.target.value.toUpperCase())}
-            onKeyDown={(e) => e.key === 'Enter' && search()}
+            style={{ marginBottom: 0, fontSize: '16px' }}
           />
-          <button className="search-btn" onClick={search}>Подобрать</button>
-          {vin && (
-            <button
-              className="search-btn ghost"
-              onClick={clearVin}
-              style={{ maxWidth: '120px' }}
-            >
-              Сбросить
-            </button>
-          )}
+          <button className="btn" onClick={handleSearch}>Найти</button>
         </div>
-      </section>
+        <p style={{ marginTop: '15px', fontSize: '12px', color: '#888' }}>Тестовый VIN: XW7BF4FKX0S123456</p>
+      </div>
 
-      <div className="content">
-        <div className="panel">
-          <h3 className="section-title" style={{ fontSize: '18px', marginBottom: '10px' }}>
-            Тестовые VIN-коды для проверки
-          </h3>
-          <p className="muted" style={{ marginBottom: '15px' }}>
-            Нажмите на код, чтобы автоматически проверить работу поиска:
-          </p>
-          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-            {testVins.map(t => (
-              <button
-                key={t.vin}
-                className="card-btn ghost"
-                style={{ flex: 1, minWidth: '200px', textAlign: 'left', padding: '12px 16px' }}
-                onClick={() => fillVin(t.vin)}
-              >
-                <div style={{ fontWeight: '700', color: '#e63946', fontSize: '15px', letterSpacing: '1px' }}>
-                  {t.vin}
-                </div>
-                <div style={{ fontSize: '13px', color: '#888', marginTop: '4px' }}>{t.car}</div>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {results !== null && (
-          <div className="panel" style={{ marginTop: '24px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
-              <p className="hint" style={{ margin: 0 }}>
-                ✅ Найдено {filteredResults.length} из {results.length} совместимых товаров для VIN {vin}
-              </p>
-              {results.length > 5 && (
-                <input
-                  type="text"
-                  placeholder="Поиск по названию, бренду или категории..."
-                  value={searchFilter}
-                  onChange={(e) => setSearchFilter(e.target.value)}
-                  style={{
-                    padding: '10px 14px',
-                    background: 'rgba(255,255,255,0.05)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    borderRadius: '8px',
-                    color: '#fff',
-                    fontSize: '14px',
-                    outline: 'none',
-                    minWidth: '250px'
-                  }}
-                />
-              )}
+      <h2 className="mb-2">Популярные товары</h2>
+      <div className="grid">
+        {products.slice(0, 4).map(p => (
+          <div key={p.id} className="card">
+            <div style={{ height: '150px', background: '#f0f0f0', borderRadius: '8px', marginBottom: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '40px' }}>⚙️</div>
+            <h3>{p.name}</h3>
+            <p style={{ color: '#666', fontSize: '14px' }}>{p.brand}</p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '15px' }}>
+              <span style={{ fontSize: '20px', fontWeight: 'bold' }}>{p.price} ₽</span>
+              <button className="btn btn-outline" onClick={() => navigate(`/product/${p.id}`)}>Подробнее</button>
             </div>
-
-            {filteredResults.length > 0 ? (
-              filteredResults.map(p => (
-                <div key={p.id} className="result-item">
-                  <div className="result-name">
-                    <strong>{p.name}</strong>
-                    <div className="muted">{p.brand} · {p.category}</div>
-                  </div>
-                  <div className="result-price">{p.price.toLocaleString('ru-RU')} ₽</div>
-                  <Link to={`/product/${p.id}`} className="card-btn ghost" style={{ width: 'auto', padding: '8px 16px', flexShrink: 0 }}>
-                    Подробнее
-                  </Link>
-                </div>
-              ))
-            ) : (
-              <p className="no-results">
-                {searchFilter ? 'Ничего не найдено по вашему запросу' : 'По вашему VIN запчасти не найдены. Попробуйте тестовые коды выше.'}
-              </p>
-            )}
           </div>
-        )}
-
-        <h2 className="section-title" style={{ marginTop: '40px' }}>Популярные товары</h2>
-        <div className="grid">
-          {featured.map(p => (
-            <div key={p.id} className="card">
-              <div className="card-img">{p.icon}</div>
-              <h3>{p.name}</h3>
-              <p className="muted">{p.brand} · {p.category}</p>
-              <div className="price">{p.price.toLocaleString('ru-RU')} ₽</div>
-              <Link to={`/product/${p.id}`} className="card-btn">Подробнее</Link>
-            </div>
-          ))}
-        </div>
+        ))}
       </div>
     </div>
   );
-};
+}
 
 export default Home;
