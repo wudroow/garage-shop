@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 
 function Header() {
   const [cartCount, setCartCount] = useState(0);
+  const [menuOpen, setMenuOpen] = useState(false);
   const user = localStorage.getItem('currentUser');
-  const userName = localStorage.getItem('currentUserName');
   const isAdmin = localStorage.getItem('isAdmin') === 'true' && user === 'admin@garage.ru';
 
   useEffect(() => {
@@ -18,11 +18,22 @@ function Header() {
     return () => window.removeEventListener('storage', updateCount);
   }, []);
 
+  const closeMenu = () => setMenuOpen(false);
+
   return (
     <header className="site-header">
-      <div className="container">
-        <Link to="/" className="logo">ГАРАЖ</Link>
-        <nav className="nav">
+      <div className="container header-inner">
+        <Link to="/" className="logo" onClick={closeMenu}>ГАРАЖ</Link>
+
+        <button
+          className={`burger ${menuOpen ? 'open' : ''}`}
+          onClick={() => setMenuOpen(o => !o)}
+          aria-label="Меню"
+        >
+          <span></span><span></span><span></span>
+        </button>
+
+        <nav className={`nav ${menuOpen ? 'open' : ''}`} onClick={closeMenu}>
           <Link to="/">Главная</Link>
           <Link to="/catalog">Каталог</Link>
           {user && <Link to="/profile">Кабинет</Link>}
