@@ -1,50 +1,100 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { products } from '../data/products';
 
 function Home() {
-  const [vin, setVin] = useState('');
+  const [vin, setVin] = useState(() => localStorage.getItem('lastVin') || '');
+  const [results, setResults] = useState([]);
+  const [searched, setSearched] = useState(() => {
+    const savedVin = localStorage.getItem('lastVin');
+    return savedVin && savedVin.length === 17;
+  });
   const navigate = useNavigate();
 
-  const handleSearch = () => {
+  useEffect(() => {
     if (vin.length === 17) {
-      localStorage.setItem('searchVin', vin);
-      navigate('/catalog');
-    } else {
-      alert('VIN-код должен содержать ровно 17 символов!');
+      const found = products.filter(p => p.vin.includes(vin));
+      setResults(found);
+      setSearched(true);
     }
+  }, []);
+
+  const handleSearch = () => {
+    if (vin.length !== 17) {
+      alert('VIN должен быть ровно 17 символов!');
+      return;
+    }
+    localStorage.setItem('lastVin', vin);
+    const found = products.filter(p => p.vin.includes(vin));
+    setResults(found);
+    setSearched(true);
   };
+
+  const clearSearch = () => {
+    setVin('');
+    setResults([]);
+    setSearched(false);
+    localStorage.removeItem('lastVin');
+  };
+
+  const testVins = ["XW7BF4FKX0S123456", "JTDBR32E720123456", "XTA210990Y1234567"];
 
   return (
     <div>
-      <div className="card text-center" style={{ background: 'linear-gradient(135deg, #1a1a1a 0%, #333 100%)', color: 'white', padding: '60px 20px', marginBottom: '40px' }}>
-        <h2 style={{ fontSize: '36px', marginBottom: '15px', color: 'white' }}>Подбор запчастей по VIN-коду</h2>
-        <p style={{ marginBottom: '30px', color: '#ccc' }}>Введите 17-значный код автомобиля, чтобы найти совместимые детали</p>
-        
-        <div style={{ display: 'flex', gap: '10px', maxWidth: '600px', margin: '0 auto' }}>
-          <input 
-            type="text" 
-            placeholder="Например: XW7BF4FKX0S123456" 
-            value={vin} 
+      <div className="hero">
+        <p style={{ fontSize: '18px', color: 'rgba(255, 255, 255, 0.9)', marginBottom: '20px', fontWeight: '500' }}>
+          Профессиональный подбор автозапчастей по VIN-коду
+        </p>
+        <div className="search-box">
+          <input
+            className="search-input"
+            placeholder="Введите VIN (17 символов)"
+            value={vin}
+            maxLength={17}
             onChange={(e) => setVin(e.target.value.toUpperCase())}
-            style={{ marginBottom: 0, fontSize: '16px' }}
           />
-          <button className="btn" onClick={handleSearch}>Найти</button>
+          <button className="search-btn" onClick={handleSearch}>Подобрать</button>
+          {searched && (
+            <button className="ghost" onClick={clearSearch}>Очистить</button>
+          )}
         </div>
-        <p style={{ marginTop: '15px', fontSize: '12px', color: '#888' }}>Тестовый VIN: XW7BF4FKX0S123456</p>
+        <p style={{ marginTop: '20px', fontSize: '13px', color: 'rgba(255, 255, 255, 0.4)' }}>
+          Тест: {testVins.map((v, i) => (
+            <span key={v} onClick={() => { setVin(v); localStorage.setItem('lastVin', v); }} style={{ cursor: 'pointer', color: '#2563eb', margin: '0 5px', textDecoration: 'underline' }}>
+              {v}{i < testVins.length - 1 ? ',' : ''}
+            </span>
+          ))}
+        </p>
       </div>
 
-      <h2 className="mb-2">Популярные товары</h2>
+      {searched && (
+        <div className="panel">
+          <h3 className="section-title" style={{ fontSize: '18px', marginBottom: '20px' }}>Результаты поиска: {results.length}</h3>
+          {results.length === 0 && <p className="muted" style={{ textAlign: 'center', padding: '20px' }}>Ничего не найдено. Попробуйте тестовые коды выше.</p>}
+          {results.map(p => (
+            <div key={p.id} className="result-item">
+              <div className="result-name">
+                <strong>{p.name}</strong>
+                <div className="muted">{p.brand} | {p.category}</div>
+              </div>
+              <div className="result-price">{p.price.toLocaleString('ru-RU')} ₽</div>
+              <Link to={`/product/${p.id}`} className="card-btn ghost" style={{ width: 'auto', padding: '8px 16px' }}>Подробнее</Link>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <h2 className="section-title" style={{ marginTop: '40px' }}>Каталог</h2>
       <div className="grid">
         {products.slice(0, 4).map(p => (
           <div key={p.id} className="card">
-            <div style={{ height: '150px', background: '#f0f0f0', borderRadius: '8px', marginBottom: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '40px' }}>⚙️</div>
-            <h3>{p.name}</h3>
-            <p style={{ color: '#666', fontSize: '14px' }}>{p.brand}</p>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '15px' }}>
-              <span style={{ fontSize: '20px', fontWeight: 'bold' }}>{p.price} ₽</span>
-              <button className="btn btn-outline" onClick={() => navigate(`/product/${p.id}`)}>Подробнее</button>
+            <div className="card-img">
+              {p.image ? <img src={p.image} alt={p.name} /> : <span style={{opacity: 0.3}}>📦</span>}
             </div>
+            <h3>{p.name}</h3>
+            <p className="muted">{p.brand} | {p.category}</p>
+            <div className="price">{p.price.toLocaleString('ru-RU')} ₽</div>
+            <Link to={`/product/${p.id}`} className="card-btn">В корзину</Link>
           </div>
         ))}
       </div>
