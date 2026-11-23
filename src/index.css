@@ -434,3 +434,38 @@ a { text-decoration: none; color: inherit; }
   min-width: 20px;
   text-align: center;
 }
+
+.notfound {
+  text-align: center;
+  padding: 80px 20px;
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.notfound-code {
+  font-size: 120px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.1);
+  line-height: 1;
+  margin-bottom: 20px;
+  letter-spacing: 10px;
+}
+.notfound-title {
+  font-size: 28px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 15px;
+}
+.notfound-text {
+  color: rgba(255,255,255,0.5);
+  font-size: 15px;
+  margin-bottom: 30px;
+  max-width: 400px;
+}
+.notfound .card-btn {
+  width: auto;
+  padding: 14px 32px;
+}
