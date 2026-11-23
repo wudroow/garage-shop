@@ -7,40 +7,50 @@ function Product() {
   const navigate = useNavigate();
   const product = products.find(p => p.id === parseInt(id));
 
-  if (!product) return <h2>Товар не найден</h2>;
+  if (!product) return <div className="panel" style={{ textAlign: 'center' }}><h2>Товар не найден</h2></div>;
 
   const addToCart = () => {
     const cart = JSON.parse(localStorage.getItem('cart') || '[]');
     const existing = cart.find(item => item.id === product.id);
-    if (existing) {
-      existing.qty += 1;
-    } else {
-      cart.push({ ...product, qty: 1 });
-    }
+    if (existing) existing.qty += 1;
+    else cart.push({ ...product, qty: 1 });
     localStorage.setItem('cart', JSON.stringify(cart));
     alert('Товар добавлен в корзину!');
   };
 
+  const goBack = () => {
+    const lastVin = localStorage.getItem('lastVin');
+    if (lastVin) {
+      navigate('/catalog');
+    } else {
+      navigate(-1);
+    }
+  };
+
   return (
-    <div className="card" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px', maxWidth: '900px', margin: '0 auto' }}>
-      <div style={{ background: '#f8f9fa', borderRadius: '12px', height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '80px' }}>
-        ⚙️
+    <div className="panel" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px', padding: '40px' }}>
+      <div className="card-img" style={{ height: '400px', fontSize: '100px' }}>
+        {product.image ? <img src={product.image} alt={product.name} /> : <span style={{opacity: 0.3}}>📦</span>}
       </div>
       <div>
-        <h1>{product.name}</h1>
-        <p style={{ color: '#666', fontSize: '18px', marginBottom: '20px' }}>Бренд: {product.brand} | Категория: {product.category}</p>
-        <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#e63946', marginBottom: '20px' }}>{product.price} ₽</div>
-        <p style={{ marginBottom: '20px' }}>{product.desc}</p>
+        <h1 style={{ fontSize: '28px', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>{product.name}</h1>
+        <p className="muted" style={{ fontSize: '14px', marginBottom: '20px' }}>Бренд: {product.brand} | Категория: {product.category}</p>
+        <div style={{ fontSize: '36px', fontWeight: '800', color: '#fff', marginBottom: '24px' }}>{product.price.toLocaleString('ru-RU')} ₽</div>
+        <p style={{ lineHeight: 1.6, marginBottom: '24px', color: 'rgba(255,255,255,0.7)' }}>{product.desc}</p>
         
-        <div style={{ background: '#f8f9fa', padding: '15px', borderRadius: '8px', marginBottom: '20px' }}>
-          <h4>Совместимость с VIN:</h4>
-          <ul style={{ paddingLeft: '20px', marginTop: '10px', fontSize: '14px' }}>
-            {product.vin.map((v, i) => <li key={i}>{v}</li>)}
+        <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', padding: '16px', borderRadius: '4px', marginBottom: '24px' }}>
+          <h4 style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px', color: '#fff' }}>Совместимость с VIN:</h4>
+          <ul style={{ paddingLeft: '20px', fontSize: '13px', color: 'rgba(255,255,255,0.6)' }}>
+            {product.vin.map((v, i) => <li key={i} style={{marginBottom: '4px', fontFamily: 'monospace'}}>{v}</li>)}
           </ul>
         </div>
 
-        <button className="btn btn-block" onClick={addToCart}>Добавить в корзину</button>
-        <button className="btn btn-outline btn-block mt-2" onClick={() => navigate(-1)}>Назад</button>
+        <button className="card-btn" style={{ width: '100%', padding: '14px', fontSize: '14px' }} onClick={addToCart}>
+          Добавить в корзину
+        </button>
+        <button className="ghost" style={{ width: '100%', marginTop: '12px', padding: '14px' }} onClick={goBack}>
+          Назад
+        </button>
       </div>
     </div>
   );
