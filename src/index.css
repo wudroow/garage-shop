@@ -469,3 +469,114 @@ a { text-decoration: none; color: inherit; }
   width: auto;
   padding: 14px 32px;
 }
+
+@media (max-width: 768px) {
+  /* Общие отступы */
+  .container { padding: 0 16px; }
+  .content { padding-bottom: 40px; }
+
+  /* Хедер: навигация в столбик / компактно */
+  .site-header .container {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .logo { font-size: 18px; letter-spacing: 1px; }
+  .nav {
+    gap: 10px;
+    flex-wrap: wrap;
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .nav a { font-size: 12px; padding: 6px 0; }
+  .nav-exit { padding: 6px 12px; font-size: 12px; }
+
+  /* Hero и поиск */
+  .hero { padding: 20px 16px; }
+  .hero p { font-size: 14px; margin-bottom: 20px; }
+  .search-box {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .search-input, .search-btn { width: 100%; }
+  .search-btn { padding: 14px; }
+
+  /* Панели и карточки */
+  .panel, .card, .hero { padding: 18px; border-radius: 6px; }
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .card h3 { font-size: 15px; }
+  .price { font-size: 18px; }
+
+  /* Список результатов (result-item) — в столбик */
+  .result-item {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 16px 12px;
+  }
+  .result-price {
+    text-align: left;
+    font-size: 16px;
+  }
+  .result-item .card-btn {
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  /* Формы (логин, админка, оформление) */
+  .login-box { padding: 24px 18px; }
+  .login-title { font-size: 22px; letter-spacing: 1px; }
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .admin-tabs {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .admin-tab {
+    padding: 8px 14px;
+    font-size: 12px;
+    flex: 1 1 auto;
+  }
+  .admin-form input,
+  .form-row input,
+  .form-row select {
+    font-size: 16px; /* чтобы iOS не зумил при фокусе */
+  }
+
+  /* Таблицы админки — горизонтальный скролл внутри контейнера */
+  .admin-table-wrap,
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  /* Футер */
+  .footer-inner {
+    flex-direction: column;
+    gap: 20px;
+  }
+  .footer-image {
+    width: 100%;
+    max-width: 160px;
+    height: auto;
+  }
+  .footer-columns {
+    gap: 24px;
+    flex-direction: column;
+  }
+  .site-footer { padding: 30px 0 20px; }
+
+  /* 404 */
+  .notfound-code { font-size: 72px; letter-spacing: 6px; }
+  .notfound-title { font-size: 22px; }
+}
+
+@media (max-width: 480px) {
+  .card-img { height: 140px; font-size: 40px; }
+  .btn, .card-btn, .search-btn { font-size: 12px; padding: 11px 16px; }
+  .section-title { font-size: 17px; }
+}
