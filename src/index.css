@@ -694,3 +694,13 @@ a { text-decoration: none; color: inherit; }
   /* Каталог */
   .grid { grid-template-columns: 1fr; gap: 16px; }
 }
+
+.hero-subtitle {
+  font-size: 18px;
+  color: rgba(255,255,255,0.9);
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+@media (max-width: 768px) {
+  .hero-subtitle { font-size: 15px; margin-bottom: 14px; }
+}
