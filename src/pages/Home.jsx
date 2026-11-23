@@ -1,105 +1,150 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { products } from '../data/products';
-
-function Home() {
-  const [vin, setVin] = useState(() => localStorage.getItem('lastVin') || '');
-  const [results, setResults] = useState([]);
-  const [searched, setSearched] = useState(() => {
-    const savedVin = localStorage.getItem('lastVin');
-    return savedVin && savedVin.length === 17;
-  });
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (vin.length === 17) {
-      const found = products.filter(p => p.vin.includes(vin));
-      setResults(found);
-      setSearched(true);
-    }
-  }, []);
-
-  const handleSearch = () => {
-    if (vin.length !== 17) {
-      alert('VIN должен быть ровно 17 символов!');
-      return;
-    }
-    localStorage.setItem('lastVin', vin);
-    const found = products.filter(p => p.vin.includes(vin));
-    setResults(found);
-    setSearched(true);
-  };
-
-  const clearSearch = () => {
-    setVin('');
-    setResults([]);
-    setSearched(false);
-    localStorage.removeItem('lastVin');
-  };
-
-  const testVins = ["XW7BF4FKX0S123456", "JTDBR32E720123456", "XTA210990Y1234567"];
-
-  return (
-    <div>
-      <div className="hero">
-        <p style={{ fontSize: '18px', color: 'rgba(255, 255, 255, 0.9)', marginBottom: '20px', fontWeight: '500' }}>
-          Профессиональный подбор автозапчастей по VIN-коду
-        </p>
-        <div className="search-box">
-          <input
-            className="search-input"
-            placeholder="Введите VIN (17 символов)"
-            value={vin}
-            maxLength={17}
-            onChange={(e) => setVin(e.target.value.toUpperCase())}
-          />
-          <button className="search-btn" onClick={handleSearch}>Подобрать</button>
-          {searched && (
-            <button className="ghost" onClick={clearSearch}>Очистить</button>
-          )}
-        </div>
-        <p style={{ marginTop: '20px', fontSize: '13px', color: 'rgba(255, 255, 255, 0.4)' }}>
-          Тест: {testVins.map((v, i) => (
-            <span key={v} onClick={() => { setVin(v); localStorage.setItem('lastVin', v); }} style={{ cursor: 'pointer', color: '#2563eb', margin: '0 5px', textDecoration: 'underline' }}>
-              {v}{i < testVins.length - 1 ? ',' : ''}
-            </span>
-          ))}
-        </p>
-      </div>
-
-      {searched && (
-        <div className="panel">
-          <h3 className="section-title" style={{ fontSize: '18px', marginBottom: '20px' }}>Результаты поиска: {results.length}</h3>
-          {results.length === 0 && <p className="muted" style={{ textAlign: 'center', padding: '20px' }}>Ничего не найдено. Попробуйте тестовые коды выше.</p>}
-          {results.map(p => (
-            <div key={p.id} className="result-item">
-              <div className="result-name">
-                <strong>{p.name}</strong>
-                <div className="muted">{p.brand} | {p.category}</div>
-              </div>
-              <div className="result-price">{p.price.toLocaleString('ru-RU')} ₽</div>
-              <Link to={`/product/${p.id}`} className="card-btn ghost" style={{ width: 'auto', padding: '8px 16px' }}>Подробнее</Link>
-            </div>
-          ))}
-        </div>
-      )}
-
-      <h2 className="section-title" style={{ marginTop: '40px' }}>Каталог</h2>
-      <div className="grid">
-        {products.slice(0, 4).map(p => (
-          <div key={p.id} className="card">
-            <div className="card-img">
-              {p.image ? <img src={p.image} alt={p.name} /> : <span style={{opacity: 0.3}}>📦</span>}
-            </div>
-            <h3>{p.name}</h3>
-            <p className="muted">{p.brand} | {p.category}</p>
-            <div className="price">{p.price.toLocaleString('ru-RU')} ₽</div>
-            <Link to={`/product/${p.id}`} className="card-btn">В корзину</Link>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+/* --- Главная: подзаголовок hero --- */
+.hero-subtitle {
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 20px;
+  font-weight: 500;
 }
 
-export default Home;
+/* --- Поиск по VIN --- */
+.search-box {
+  display: flex;
+  gap: 12px;
+  max-width: 700px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.search-box .search-input {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+.search-box .search-btn,
+.search-box .search-clear {
+  flex: 0 0 auto;
+}
+
+/* --- Тестовые VIN --- */
+.test-vins {
+  margin-top: 20px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.4);
+  line-height: 1.8;
+  word-break: break-word;
+}
+.test-vins span {
+  cursor: pointer;
+  color: #2563eb;
+  margin: 0 4px;
+  text-decoration: underline;
+}
+
+/* --- Результаты --- */
+.results-panel {
+  margin-top: 20px;
+}
+.results-title {
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+.results-empty {
+  text-align: center;
+  padding: 20px;
+}
+.result-more {
+  width: auto;
+  padding: 8px 16px;
+}
+
+/* --- Каталог --- */
+.catalog-title {
+  margin-top: 40px;
+}
+.card-placeholder {
+  opacity: 0.3;
+}
+
+/* =========================================
+   МОБИЛЬНАЯ ВЕРСИЯ
+   ========================================= */
+@media (max-width: 768px) {
+  /* Hero и поиск */
+  .hero {
+    padding: 20px 16px;
+  }
+  .hero-subtitle {
+    font-size: 15px;
+    margin-bottom: 14px;
+    line-height: 1.4;
+  }
+
+  /* Поиск в столбик */
+  .search-box {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .search-box .search-input,
+  .search-box .search-btn,
+  .search-box .search-clear {
+    width: 100%;
+    flex: 1 1 auto;
+  }
+
+  /* Тестовые VIN по центру и переносятся */
+  .test-vins {
+    font-size: 12px;
+    text-align: center;
+    line-height: 2;
+    margin-top: 14px;
+  }
+  .test-vins span {
+    display: inline-block;
+    margin: 2px 4px;
+  }
+
+  /* Результаты в одну колонку */
+  .result-item {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 16px 12px;
+  }
+  .result-price {
+    text-align: left;
+    font-size: 16px;
+  }
+  .result-more {
+    width: 100%;
+    text-align: center;
+  }
+
+  /* Каталог: одна карточка в ряд */
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .catalog-title {
+    margin-top: 28px;
+    font-size: 17px;
+  }
+}
+
+/* Очень узкие экраны */
+@media (max-width: 480px) {
+  .hero-subtitle {
+    font-size: 14px;
+  }
+  .test-vins {
+    font-size: 11px;
+  }
+  .card-img {
+    height: 140px;
+    font-size: 40px;
+  }
+  .btn,
+  .card-btn,
+  .search-btn {
+    font-size: 12px;
+    padding: 11px 16px;
+  }
+}
