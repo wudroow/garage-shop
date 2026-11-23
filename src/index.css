@@ -580,3 +580,117 @@ a { text-decoration: none; color: inherit; }
   .btn, .card-btn, .search-btn { font-size: 12px; padding: 11px 16px; }
   .section-title { font-size: 17px; }
 }
+
+/* ===== ХЕДЕР + БУРГЕР ===== */
+.header-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+.burger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 0;
+}
+.burger span {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: #fff;
+  margin: 0 auto;
+  transition: 0.25s;
+}
+.burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.burger.open span:nth-child(2) { opacity: 0; }
+.burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* ===== ГЛАВНАЯ: поиск по VIN ===== */
+.search-box {
+  display: flex;
+  gap: 12px;
+  max-width: 700px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.search-box .search-input { flex: 1 1 220px; min-width: 0; }
+.search-box .search-btn,
+.search-box .ghost { flex: 0 0 auto; }
+
+.test-vins {
+  margin-top: 20px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.4);
+  line-height: 1.8;
+  word-break: break-word;
+}
+.test-vins span { cursor: pointer; color: #2563eb; margin: 0 4px; text-decoration: underline; }
+
+/* ===== МОБИЛКА ===== */
+@media (max-width: 768px) {
+  /* Хедер */
+  .burger { display: flex; }
+  .nav {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: rgba(15,15,15,0.98);
+    backdrop-filter: blur(12px);
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 10px 16px 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    margin-top: 10px;
+  }
+  .nav.open { display: flex; }
+  .nav a {
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-size: 14px;
+  }
+  .nav a:last-child { border-bottom: none; }
+  .nav-exit {
+    margin-top: 10px;
+    text-align: center;
+    padding: 12px;
+  }
+  .nav-cart { justify-content: space-between; }
+
+  /* Поиск по VIN */
+  .search-box {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .search-box .search-input,
+  .search-box .search-btn,
+  .search-box .ghost { width: 100%; flex: 1 1 auto; }
+  .hero { padding: 20px 16px; }
+  .hero > p:first-child { font-size: 15px !important; }
+  .hero p { margin-bottom: 15px; }
+  .test-vins { font-size: 12px; text-align: center; }
+
+  /* Результаты поиска */
+  .result-item {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 16px 12px;
+  }
+  .result-price { text-align: left; font-size: 16px; }
+  .result-item .card-btn { width: 100%; }
+
+  /* Каталог */
+  .grid { grid-template-columns: 1fr; gap: 16px; }
+}
