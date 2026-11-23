@@ -5,49 +5,66 @@ import { products, categories } from '../data/products';
 function Catalog() {
   const [filter, setFilter] = useState('Все');
   const [search, setSearch] = useState('');
-  const [vinSearch, setVinSearch] = useState(localStorage.getItem('searchVin') || '');
+  const [vinSearch, setVinSearch] = useState(() => localStorage.getItem('lastVin') || '');
+
+  useEffect(() => {
+    const savedVin = localStorage.getItem('lastVin');
+    if (savedVin) setVinSearch(savedVin);
+  }, []);
 
   const filtered = products.filter(p => {
     const matchCat = filter === 'Все' || p.category === filter;
-    const matchSearch = p.name.toLowerCase().includes(search.toLowerCase()) || p.brand.toLowerCase().includes(search.toLowerCase());
+    const matchSearch = p.name.toLowerCase().includes(search.toLowerCase()) || 
+                        p.brand.toLowerCase().includes(search.toLowerCase());
     const matchVin = vinSearch ? p.vin.includes(vinSearch) : true;
     return matchCat && matchSearch && matchVin;
   });
 
+  const clearVin = () => {
+    setVinSearch('');
+    localStorage.removeItem('lastVin');
+  };
+
   return (
     <div>
-      <h1 className="mb-2">{vinSearch ? `Результаты для VIN: ${vinSearch}` : 'Каталог запчастей'}</h1>
-      
-      <div className="card mb-2" style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
-        <input 
-          type="text" 
-          placeholder="Поиск по названию или бренду..." 
-          value={search} 
+      <h1 className="section-title">
+        {vinSearch ? `Каталог для VIN: ${vinSearch}` : 'Каталог запчастей'}
+      </h1>
+
+      <div className="panel" style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '24px' }}>
+        <input
+          type="text"
+          placeholder="Поиск по названию или бренду..."
+          value={search}
           onChange={(e) => setSearch(e.target.value)}
           style={{ flex: 1, minWidth: '250px', marginBottom: 0 }}
         />
         <select value={filter} onChange={(e) => setFilter(e.target.value)} style={{ width: '200px', marginBottom: 0 }}>
           {categories.map(c => <option key={c} value={c}>{c}</option>)}
         </select>
-        {vinSearch && <button className="btn btn-outline" onClick={() => { setVinSearch(''); localStorage.removeItem('searchVin'); }}>Сбросить VIN</button>}
+        {vinSearch && (
+          <button className="ghost" onClick={clearVin} style={{ padding: '10px 16px' }}>
+            Сбросить VIN
+          </button>
+        )}
       </div>
 
       {filtered.length === 0 ? (
-        <div className="text-center" style={{ padding: '50px' }}>
-          <h3>Ничего не найдено</h3>
-          <p>Попробуйте изменить параметры поиска.</p>
+        <div className="panel" style={{ textAlign: 'center', padding: '60px' }}>
+          <h3 style={{ marginBottom: '10px' }}>Ничего не найдено</h3>
+          <p className="muted">Попробуйте изменить параметры поиска или сбросить фильтр VIN.</p>
         </div>
       ) : (
         <div className="grid">
           {filtered.map(p => (
             <div key={p.id} className="card">
-              <div style={{ height: '120px', background: '#f8f9fa', borderRadius: '8px', marginBottom: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '30px' }}>🔩</div>
-              <h3 style={{ fontSize: '18px' }}>{p.name}</h3>
-              <p style={{ color: '#666', fontSize: '14px' }}>{p.brand} • {p.category}</p>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '15px' }}>
-                <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#e63946' }}>{p.price} ₽</span>
-                <Link to={`/product/${p.id}`} className="btn" style={{ padding: '8px 16px', fontSize: '14px' }}>В корзину</Link>
+              <div className="card-img">
+                {p.image ? <img src={p.image} alt={p.name} /> : <span style={{opacity: 0.3}}>📦</span>}
               </div>
+              <h3>{p.name}</h3>
+              <p className="muted">{p.brand} | {p.category}</p>
+              <div className="price">{p.price.toLocaleString('ru-RU')} ₽</div>
+              <Link to={`/product/${p.id}`} className="card-btn">Подробнее</Link>
             </div>
           ))}
         </div>
