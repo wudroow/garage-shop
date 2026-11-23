@@ -1,62 +1,40 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const Footer = () => {
+const footerImg = new URL('/images/footer.png', import.meta.url).href;
+
+function Footer() {
   return (
-    <footer className="footer">
-      <div style={{ 
-        maxWidth: '1200px', 
-        margin: '0 auto', 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', 
-        gap: '40px', 
-        textAlign: 'left', 
-        marginBottom: '30px' 
-      }}>
-        
-        {/* Колонка 1: О проекте */}
-        <div>
-          <h3 style={{ color: '#fff', fontSize: '22px', fontWeight: '800', marginBottom: '15px', letterSpacing: '1px' }}>
-            ГАРАЖ
-          </h3>
-          <p className="muted" style={{ fontSize: '14px', lineHeight: '1.6' }}>
-            Надежный подбор автозапчастей по VIN-коду вашего автомобиля. 
-            Точность, скорость и проверенные поставщики.
-          </p>
+    <footer className="site-footer">
+      <div className="container footer-inner">
+        <div className="footer-image">
+          <img src={footerImg} alt="Гараж" />
         </div>
-
-        {/* Колонка 2: Навигация */}
-        <div>
-          <h4 style={{ color: '#fff', fontSize: '16px', fontWeight: '600', marginBottom: '15px' }}>Навигация</h4>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <Link to="/" className="muted" style={{ textDecoration: 'none', transition: 'color 0.3s' }}>Главная</Link>
-            <Link to="/catalog" className="muted" style={{ textDecoration: 'none', transition: 'color 0.3s' }}>Каталог запчастей</Link>
-            <Link to="/cart" className="muted" style={{ textDecoration: 'none', transition: 'color 0.3s' }}>Корзина</Link>
-            <Link to="/login" className="muted" style={{ textDecoration: 'none', transition: 'color 0.3s' }}>Личный кабинет</Link>
+        <div className="footer-text">
+          <div className="footer-logo">ГАРАЖ</div>
+          <p>Интернет-магазин автозапчастей с подбором по VIN-коду. Точный подбор, быстрая доставка, гарантия качества.</p>
+          <div className="footer-columns">
+            <div>
+              <h4>Магазин</h4>
+              <Link to="/">Главная</Link>
+              <Link to="/catalog">Каталог</Link>
+            </div>
+            <div>
+              <h4>Покупателям</h4>
+              <a href="#/">Доставка</a>
+              <a href="#/">Возврат</a>
+            </div>
+            <div>
+              <h4>Контакты</h4>
+              <a href="#/">+7 (900) 000-00-00</a>
+              <a href="#/">info@garage.ru</a>
+            </div>
           </div>
+          <p className="footer-copy">© 2026 Гараж. Учебный проект. Не является публичной офертой.</p>
         </div>
-
-        {/* Колонка 3: Контакты */}
-        <div>
-          <h4 style={{ color: '#fff', fontSize: '16px', fontWeight: '600', marginBottom: '15px' }}>Контакты</h4>
-          <p className="muted" style={{ fontSize: '14px', marginBottom: '10px' }}>📞 +7 (900) 123-45-67</p>
-          <p className="muted" style={{ fontSize: '14px', marginBottom: '10px' }}>✉️ support@garage-shop.ru</p>
-          <p className="muted" style={{ fontSize: '14px' }}>📍 г. Юрга, ул. Ленина, 10</p>
-        </div>
-      </div>
-
-      {/* Нижняя полоса с копирайтом */}
-      <div style={{ 
-        borderTop: '1px solid rgba(255, 255, 255, 0.08)', 
-        paddingTop: '20px', 
-        fontSize: '13px', 
-        color: '#555',
-        textAlign: 'center'
-      }}>
-        © 2026 ГАРАЖ. Все права защищены. Курсовой проект по МДК 04.03.
       </div>
     </footer>
   );
-};
+}
 
 export default Footer;
