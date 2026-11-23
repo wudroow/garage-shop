@@ -1,189 +1,82 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const Profile = () => {
+function Profile() {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+  const user = localStorage.getItem('currentUser');
+  const userName = localStorage.getItem('currentUserName');
   const [orders, setOrders] = useState([]);
-  const [isEditing, setIsEditing] = useState(false);
-  const [form, setForm] = useState({ name: '', phone: '', address: '' });
-  const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('currentUser');
-    if (!savedUser) {
-      navigate('/login');
-      return;
-    }
-    const u = JSON.parse(savedUser);
-    setUser(u);
-    setForm({
-      name: u.name || '',
-      phone: u.phone || '',
-      address: u.address || ''
-    });
-
     const allOrders = JSON.parse(localStorage.getItem('orders') || '[]');
-    setOrders(allOrders.filter(o => o.clientId === u.id));
-  }, [navigate]);
+    const myOrders = allOrders.filter(o => o.email === user);
+    setOrders(myOrders);
+  }, [user]);
 
-  const handleSave = () => {
-    if (!form.name.trim()) {
-      alert('Имя не может быть пустым');
-      return;
-    }
-
-    const updatedUser = { ...user, name: form.name, phone: form.phone, address: form.address };
-    localStorage.setItem('currentUser', JSON.stringify(updatedUser));
-
-    if (updatedUser.role !== 'admin') {
-      const users = JSON.parse(localStorage.getItem('users') || '[]');
-      const updatedUsers = users.map(u => u.id === updatedUser.id ? updatedUser : u);
-      localStorage.setItem('users', JSON.stringify(updatedUsers));
-    }
-
-    setUser(updatedUser);
-    setIsEditing(false);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
-  };
-
-  const logout = () => {
+  const handleLogout = () => {
     localStorage.removeItem('currentUser');
     localStorage.removeItem('isAdmin');
+    localStorage.removeItem('currentUserName');
     navigate('/');
     window.location.reload();
   };
 
-  if (!user) return null;
+  if (!user) {
+    navigate('/login');
+    return null;
+  }
 
-  const statusText = {
-    pending: 'В обработке',
-    completed: 'Доставлен',
-    cancelled: 'Отменён'
+  const statusConfig = {
+    new: { label: 'Новый', color: '#2563eb' },
+    accepted: { label: 'Принят', color: '#10b981' },
+    rejected: { label: 'Отклонён', color: '#ef4444' }
   };
 
   return (
-    <div className="content">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 24 }}>
-        <h1 className="section-title" style={{ margin: 0 }}>Личный кабинет</h1>
-        <button className="submit-btn ghost" style={{ maxWidth: 140 }} onClick={logout}>Выйти</button>
+    <div>
+      <h1 className="section-title">Личный кабинет</h1>
+      <div className="panel" style={{ marginBottom: '20px' }}>
+        <h3 style={{ marginBottom: '10px' }}>Добро пожаловать, {userName || user}</h3>
+        <p className="muted">{user}</p>
+        <button className="ghost" style={{ marginTop: '20px' }} onClick={handleLogout}>Выйти</button>
       </div>
 
-      <div className="panel" style={{ marginBottom: 24 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 10 }}>
-          <h3 style={{ fontSize: 18 }}>
-            {user.role === 'admin' ? '🔑 Администратор' : '👤 Профиль'}
-          </h3>
-          {user.role !== 'admin' && (
-            <button
-              className="submit-btn ghost"
-              style={{ maxWidth: 160, padding: '8px 16px', fontSize: 14 }}
-              onClick={() => setIsEditing(!isEditing)}
-            >
-              {isEditing ? 'Отмена' : 'Редактировать'}
-            </button>
-          )}
+      <h2 className="section-title" style={{ marginTop: '30px' }}>Мои заказы</h2>
+      {orders.length === 0 ? (
+        <div className="panel" style={{ textAlign: 'center' }}>
+          <p className="muted">У вас пока нет заказов</p>
         </div>
-
-        {saved && (
-          <p style={{ color: '#4ade80', marginBottom: 12, fontWeight: 600 }}>
-            ✅ Данные сохранены
-          </p>
-        )}
-
-        {isEditing ? (
-          <div style={{ display: 'grid', gap: 14 }}>
-            <div className="form-group" style={{ margin: 0 }}>
-              <label>Имя</label>
-              <input
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                placeholder="Иван Петров"
-              />
-            </div>
-            <div className="form-group" style={{ margin: 0 }}>
-              <label>Телефон</label>
-              <input
-                value={form.phone}
-                onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                placeholder="+7-900-111-22-33"
-              />
-            </div>
-            <div className="form-group" style={{ margin: 0 }}>
-              <label>Адрес доставки</label>
-              <input
-                value={form.address}
-                onChange={(e) => setForm({ ...form, address: e.target.value })}
-                placeholder="г. Юрга, ул. Ленина, 10"
-              />
-            </div>
-            <button className="submit-btn" style={{ maxWidth: 200 }} onClick={handleSave}>
-              Сохранить изменения
-            </button>
-          </div>
-        ) : (
-          <div style={{ display: 'grid', gap: 10 }}>
-            <div style={{ display: 'flex', gap: 12, paddingBottom: 10, borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-              <span className="muted" style={{ minWidth: 100 }}>Имя:</span>
-              <strong>{user.name || '—'}</strong>
-            </div>
-            <div style={{ display: 'flex', gap: 12, paddingBottom: 10, borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-              <span className="muted" style={{ minWidth: 100 }}>Email:</span>
-              <span>{user.email || '—'}</span>
-            </div>
-            <div style={{ display: 'flex', gap: 12, paddingBottom: 10, borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-              <span className="muted" style={{ minWidth: 100 }}>Телефон:</span>
-              <span>{user.phone || <span className="muted">не указан</span>}</span>
-            </div>
-            <div style={{ display: 'flex', gap: 12 }}>
-              <span className="muted" style={{ minWidth: 100 }}>Адрес:</span>
-              <span>{user.address || <span className="muted">не указан</span>}</span>
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div className="panel">
-        <h3 style={{ fontSize: 18, marginBottom: 16 }}>Мои заказы ({orders.length})</h3>
-
-        {orders.length === 0 ? (
-          <p className="no-results">У вас пока нет заказов</p>
-        ) : (
-          <div className="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>№</th>
-                  <th>Дата</th>
-                  <th>Состав</th>
-                  <th>Сумма</th>
-                  <th>Статус</th>
-                </tr>
-              </thead>
-              <tbody>
-                {orders.map(o => (
-                  <tr key={o.id}>
-                    <td>#{o.id}</td>
-                    <td>{o.date}</td>
-                    <td className="muted" style={{ fontSize: 12 }}>
-                      {o.items.map(i => `${i.quantity} шт.`).join(', ')}
-                    </td>
-                    <td style={{ color: '#e63946', fontWeight: 700 }}>{o.total.toLocaleString('ru-RU')} ₽</td>
-                    <td>
-                      <span className={`badge ${o.status}`}>
-                        {statusText[o.status]}
-                      </span>
-                    </td>
-                  </tr>
+      ) : (
+        orders.map(order => {
+          const status = statusConfig[order.status] || statusConfig.new;
+          return (
+            <div key={order.id} className="panel" style={{ marginBottom: '15px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '10px' }}>
+                <div>
+                  <strong style={{ fontSize: '16px' }}>Заказ #{String(order.id).slice(-4)}</strong>
+                  <div className="muted" style={{ fontSize: '13px', marginTop: '4px' }}>{order.date}</div>
+                </div>
+                <span className="order-status" style={{ background: status.color }}>
+                  {status.label}
+                </span>
+              </div>
+              <div style={{ marginBottom: '15px' }}>
+                {order.items.map(item => (
+                  <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                    <span>{item.name} × {item.qty}</span>
+                    <span>{(item.price * item.qty).toLocaleString('ru-RU')} ₽</span>
+                  </div>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                <strong style={{ fontSize: '18px' }}>Итого: {order.total.toLocaleString('ru-RU')} ₽</strong>
+              </div>
+            </div>
+          );
+        })
+      )}
     </div>
   );
-};
+}
 
 export default Profile;
